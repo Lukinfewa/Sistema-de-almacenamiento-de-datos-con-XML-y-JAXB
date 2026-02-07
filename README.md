@@ -77,23 +77,22 @@ El sistema se organiza mediante una estructura jerárquica clara que refleja la 
 
 ## **2.2. Diagrama Conceptual**
 
-La relación entre entidades puede visualizarse así:
-
-Gimnasio  
-    │  
-    ├─── Máquina (1..N)  
-          ├─── id  
-          ├─── nombre  
-          ├─── marca  
-          ├─── modelo  
-          ├─── categoría  
-          ├─── Dimensiones  
-          │     ├─── ancho  
-          │     ├─── largo  
-          │     └─── alto  
-          ├─── dificultad (1-3)  
-          └─── Lista de Músculos (1..N)  
-                 └─── musculo
+```java
+Gimnasio
+ └── List<Maquina> maquinas   // 1..N
+       └── Maquina
+            ├── int id
+            ├── String nombre
+            ├── String marca
+            ├── String modelo
+            ├── String categoria
+            ├── Dimensiones dimensiones
+            │     ├── double ancho
+            │     ├── double largo
+            │     └── double alto
+            ├── int dificultad   // valores permitidos: 1..3
+            └── List<String> listaMusculos   // 1..N
+```
 
 # **3\. Funcionalidades Clave del Sistema**
 
@@ -108,7 +107,7 @@ La librería Java implementa un conjunto completo de operaciones CRUD (Create, R
 **Caso de uso:** Al iniciar la aplicación, carga el inventario completo desde el archivo gimnasio.xml.
 
 **Implementación:**
-
+```java
 public void cargarDatos() throws JAXBException {  
     JAXBContext context \= JAXBContext.newInstance(Gimnasio.class);  
     Unmarshaller unmarshaller \= context.createUnmarshaller();  
@@ -117,7 +116,7 @@ public void cargarDatos() throws JAXBException {
         this.miGimnasio \= (Gimnasio) unmarshaller.unmarshal(file);  
     }  
 }
-
+```
 ## **3.2. guardarDatos()**
 
 **Tipo:** Persistencia \- Marshalling
@@ -127,14 +126,14 @@ public void cargarDatos() throws JAXBException {
 **Caso de uso:** Después de añadir nuevas máquinas o modificar datos existentes, persiste los cambios.
 
 **Implementación:**
-
+```java
 public void guardarDatos() throws JAXBException {  
     JAXBContext context \= JAXBContext.newInstance(Gimnasio.class);  
     Marshaller marshaller \= context.createMarshaller();  
     marshaller.setProperty(Marshaller.JAXB\_FORMATTED\_OUTPUT, true);  
     marshaller.marshal(miGimnasio, new File(rutaXML));  
 }
-
+```
 ## **3.3. aniadirMaquina(TipoMaquina m)**
 
 **Tipo:** Gestión \- Alta
@@ -144,11 +143,12 @@ public void guardarDatos() throws JAXBException {
 **Caso de uso:** Al adquirir nueva maquinaria, el gestor la registra con todos sus datos técnicos.
 
 **Implementación:**
+```java
 
 public void aniadirMaquina(TipoMaquina m) {  
     miGimnasio.getMaquina().add(m);  
 }
-
+```
 ## **3.4. eliminarMaquina(int id)**
 
 **Tipo:** Gestión \- Baja
@@ -158,11 +158,11 @@ public void aniadirMaquina(TipoMaquina m) {
 **Caso de uso:** Cuando una máquina se vende, se avería irreparablemente o se retira del servicio.
 
 **Implementación:**
-
+```java
 public boolean eliminarMaquina(int id) {  
     return miGimnasio.getMaquina().removeIf(m \-\> m.getId() \== id);  
 }
-
+```
 ## **3.5. buscarPorDificultad(int nivel)**
 
 **Tipo:** Consulta \- Filtrado
@@ -172,13 +172,14 @@ public boolean eliminarMaquina(int id) {
 **Caso de uso:** Para recomendar equipamiento a usuarios según su experiencia: principiantes buscan nivel 1, avanzados buscan nivel 3\.
 
 **Implementación:**
+```java
 
 public List\<TipoMaquina\> buscarPorDificultad(int nivel) {  
     return miGimnasio.getMaquina().stream()  
             .filter(m \-\> m.getDificultad() \== nivel)  
             .collect(Collectors.toList());  
 }
-
+```
 ## **3.6. contarPorMusculo(String musculo)**
 
 **Tipo:** Análisis \- Estadística
@@ -188,13 +189,13 @@ public List\<TipoMaquina\> buscarPorDificultad(int nivel) {
 **Caso de uso:** Si el gimnasio tiene solo 2 máquinas para "Pierna" pero 8 para "Pecho", el análisis sugiere ampliar el equipamiento para piernas.
 
 **Implementación:**
-
+```java
 public long contarPorMusculo(String musculo) {  
     return miGimnasio.getMaquina().stream()  
             .filter(m \-\> m.getListaMusculos().getMusculo().contains(musculo))  
             .count();  
 }
-
+```
 ## **3.7. filtrarPorAnchoMaximo(double ancho)**
 
 **Tipo:** Consulta \- Restricción Espacial
@@ -204,13 +205,13 @@ public long contarPorMusculo(String musculo) {
 **Caso de uso:** Al reorganizar el gimnasio o buscar máquinas para un espacio reducido, el gestor puede filtrar por dimensiones máximas permitidas.
 
 **Implementación:**
-
+```java
 public List\<TipoMaquina\> filtrarPorAnchoMaximo(double ancho) {  
     return miGimnasio.getMaquina().stream()  
             .filter(m \-\> m.getDimensiones().getAncho().doubleValue() \<= ancho)  
             .collect(Collectors.toList());  
 }
-
+```
 ## **3.8. actualizarDificultad(int id, int nuevaDificultad)**
 
 **Tipo:** Modificación \- Actualización
@@ -220,14 +221,14 @@ public List\<TipoMaquina\> filtrarPorAnchoMaximo(double ancho) {
 **Caso de uso:** Una prensa de piernas básica (nivel 1\) puede convertirse en nivel 2 al añadir un sistema de carga olímpica.
 
 **Implementación:**
-
+```java
 public void actualizarDificultad(int id, int nuevaDificultad) {  
     miGimnasio.getMaquina().stream()  
             .filter(m \-\> m.getId() \== id)  
             .findFirst()  
             .ifPresent(m \-\> m.setDificultad(nuevaDificultad));  
 }
-
+```
 # **4\. Esquema XSD y Diseño Técnico**
 
 ## **4.1. Fundamentos del Esquema**
@@ -253,7 +254,7 @@ El esquema XSD (XML Schema Definition) actúa como el contrato formal del sistem
 * *Ventaja técnica:* Mayor precisión en medidas: 1.20 metros se almacena exactamente, sin errores de redondeo.
 
 ## **4.3. Código Completo del Esquema XSD**
-
+```java
 \<?xml version="1.0" encoding="UTF-8"?\>  
 \<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"\>
 
@@ -304,7 +305,7 @@ El esquema XSD (XML Schema Definition) actúa como el contrato formal del sistem
     \</xs:simpleType\>
 
 \</xs:schema\>
-
+```
 # **5\. Documento XML y Datos de Prueba**
 
 ## **5.1. Estrategia de Poblado**
@@ -326,6 +327,7 @@ Los datos cumplen las siguientes reglas de coherencia:
 * Las marcas y modelos son de fabricantes reconocidos del sector
 
 ## **5.3. Código Completo del XML**
+```java
 
 \<?xml version="1.0" encoding="UTF-8" standalone="yes"?\>  
 \<gimnasio\>  
@@ -389,6 +391,8 @@ Los datos cumplen las siguientes reglas de coherencia:
     \</maquina\>  
 \</gimnasio\>
 
+```
+
 # **6\. Integración con JAXB y Clases Java**
 
 ## **6.1. Proceso de Generación de Clases**
@@ -396,8 +400,36 @@ Los datos cumplen las siguientes reglas de coherencia:
 JAXB (Java Architecture for XML Binding) actúa como el puente entre el mundo XML y Java. El proceso de generación se realiza mediante la herramienta xjc, que lee el esquema XSD y produce automáticamente clases Java anotadas.
 
 **Comando de generación:**
+```java
+Paso 3: Generar las Clases Automáticamente
+Opción A: Desde la Terminal de IntelliJ
 
-xjc \-d src/main/java \-p com.gimnasio.model src/main/resources/gimnasio.xsd
+Abre la terminal en IntelliJ (parte inferior)
+Ejecuta el comando:
+
+bash   mvn clean jaxb2:xjc
+```
+
+### Opción B: Desde el Panel Maven
+
+1. Haz clic en el panel **Maven** (lateral derecho)
+2. Expande tu proyecto
+3. Ve a **Plugins → jaxb2 → jaxb2:xjc**
+4. Haz doble clic para ejecutar
+
+## Paso 4: Verificar las Clases Generadas
+
+Después de ejecutar el comando, deberías ver las clases generadas en:
+```
+src/main/java/com/gimnasio/model/
+Las clases generadas serán:
+
+Gimnasio.java (clase raíz)
+TipoMaquina.java (entidad máquina)
+TipoDimensiones.java (dimensiones)
+TipoMusculos.java (lista de músculos)
+ObjectFactory.java (factoría para crear instancias)
+```
 
 Donde:
 
@@ -483,7 +515,7 @@ Donde:
 ## **7.1. Clase Main \- Batería de Pruebas**
 
 Se ha desarrollado una clase Main que ejecuta una secuencia de pruebas representativa de las operaciones más comunes del sistema. Cada prueba valida un método diferente de la librería.
-
+```java
 package org.example;
 
 import java.util.List;
@@ -521,11 +553,11 @@ public class Main {
         }  
     }  
 }
-
+```
 ## **7.2. Resultados Esperados**
 
 La ejecución del Main produce la siguiente salida:
-
+```java
 \--- DATOS CARGADOS DEL XML \---
 
 Máquinas de dificultad nivel 3:  
@@ -536,7 +568,7 @@ Número de máquinas para 'Glúteo': 1
 Dificultad de la máquina ID 1 actualizada.
 
 Cambios guardados correctamente en gimnasio.xml
-
+```
 ## **7.3. Validaciones Realizadas**
 
 * **Integridad referencial:** Todos los IDs existen y son únicos. No hay referencias rotas.  
