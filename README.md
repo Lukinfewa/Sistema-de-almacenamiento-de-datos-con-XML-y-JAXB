@@ -73,7 +73,7 @@ El sistema se organiza mediante una estructura jerárquica clara que refleja la 
 * Permite de 1 a N músculos por máquina  
 * Cada elemento es de tipo string  
 * Facilita búsquedas y filtrados por zona corporal  
-* En Java se traduce a List\<String\> mediante JAXB
+* En Java se traduce a List<String> mediante JAXB
 
 ## **2.2. Diagrama Conceptual**
 
@@ -109,11 +109,11 @@ La librería Java implementa un conjunto completo de operaciones CRUD (Create, R
 **Implementación:**
 ```java
 public void cargarDatos() throws JAXBException {  
-    JAXBContext context \= JAXBContext.newInstance(Gimnasio.class);  
-    Unmarshaller unmarshaller \= context.createUnmarshaller();  
-    File file \= new File(rutaXML);  
+    JAXBContext context = JAXBContext.newInstance(Gimnasio.class);  
+    Unmarshaller unmarshaller = context.createUnmarshaller();  
+    File file = new File(rutaXML);  
     if (file.exists()) {  
-        this.miGimnasio \= (Gimnasio) unmarshaller.unmarshal(file);  
+        this.miGimnasio = (Gimnasio) unmarshaller.unmarshal(file);  
     }  
 }
 ```
@@ -128,8 +128,8 @@ public void cargarDatos() throws JAXBException {
 **Implementación:**
 ```java
 public void guardarDatos() throws JAXBException {  
-    JAXBContext context \= JAXBContext.newInstance(Gimnasio.class);  
-    Marshaller marshaller \= context.createMarshaller();  
+    JAXBContext context = JAXBContext.newInstance(Gimnasio.class);  
+    Marshaller marshaller = context.createMarshaller();  
     marshaller.setProperty(Marshaller.JAXB\_FORMATTED\_OUTPUT, true);  
     marshaller.marshal(miGimnasio, new File(rutaXML));  
 }
@@ -160,7 +160,7 @@ public void aniadirMaquina(TipoMaquina m) {
 **Implementación:**
 ```java
 public boolean eliminarMaquina(int id) {  
-    return miGimnasio.getMaquina().removeIf(m \-\> m.getId() \== id);  
+    return miGimnasio.getMaquina().removeIf(m -> m.getId() == id);  
 }
 ```
 ## **3.5. buscarPorDificultad(int nivel)**
@@ -174,9 +174,9 @@ public boolean eliminarMaquina(int id) {
 **Implementación:**
 ```java
 
-public List\<TipoMaquina\> buscarPorDificultad(int nivel) {  
+public List<TipoMaquina> buscarPorDificultad(int nivel) {  
     return miGimnasio.getMaquina().stream()  
-            .filter(m \-\> m.getDificultad() \== nivel)  
+            .filter(m -> m.getDificultad() == nivel)  
             .collect(Collectors.toList());  
 }
 ```
@@ -192,7 +192,7 @@ public List\<TipoMaquina\> buscarPorDificultad(int nivel) {
 ```java
 public long contarPorMusculo(String musculo) {  
     return miGimnasio.getMaquina().stream()  
-            .filter(m \-\> m.getListaMusculos().getMusculo().contains(musculo))  
+            .filter(m -> m.getListaMusculos().getMusculo().contains(musculo))  
             .count();  
 }
 ```
@@ -206,9 +206,9 @@ public long contarPorMusculo(String musculo) {
 
 **Implementación:**
 ```java
-public List\<TipoMaquina\> filtrarPorAnchoMaximo(double ancho) {  
+public List<TipoMaquina> filtrarPorAnchoMaximo(double ancho) {  
     return miGimnasio.getMaquina().stream()  
-            .filter(m \-\> m.getDimensiones().getAncho().doubleValue() \<= ancho)  
+            .filter(m -> m.getDimensiones().getAncho().doubleValue() <= ancho)  
             .collect(Collectors.toList());  
 }
 ```
@@ -224,9 +224,9 @@ public List\<TipoMaquina\> filtrarPorAnchoMaximo(double ancho) {
 ```java
 public void actualizarDificultad(int id, int nuevaDificultad) {  
     miGimnasio.getMaquina().stream()  
-            .filter(m \-\> m.getId() \== id)  
+            .filter(m -> m.getId() == id)  
             .findFirst()  
-            .ifPresent(m \-\> m.setDificultad(nuevaDificultad));  
+            .ifPresent(m -> m.setDificultad(nuevaDificultad));  
 }
 ```
 # **4\. Esquema XSD y Diseño Técnico**
@@ -255,56 +255,56 @@ El esquema XSD (XML Schema Definition) actúa como el contrato formal del sistem
 
 ## **4.3. Código Completo del Esquema XSD**
 ```java
-\<?xml version="1.0" encoding="UTF-8"?\>  
-\<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"\>
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    \<\!-- Elemento Raíz \--\>  
-    \<xs:element name="gimnasio"\>  
-        \<xs:complexType\>  
-            \<xs:sequence\>  
-                \<xs:element name="maquina" type="tipoMaquina" maxOccurs="unbounded"/\>  
-            \</xs:sequence\>  
-        \</xs:complexType\>  
-    \</xs:element\>
+    <!-- Elemento Raíz -->
+    <xs:element name="gimnasio">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="maquina" type="tipoMaquina" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
-    \<\!-- Entidad Principal \--\>  
-    \<xs:complexType name="tipoMaquina"\>  
-        \<xs:sequence\>  
-            \<xs:element name="id" type="xs:int"/\>  
-            \<xs:element name="nombre" type="xs:string"/\>  
-            \<xs:element name="marca" type="xs:string"/\>  
-            \<xs:element name="modelo" type="xs:string"/\>  
-            \<xs:element name="categoria" type="xs:string"/\>  
-            \<xs:element name="dimensiones" type="tipoDimensiones"/\>  
-            \<xs:element name="dificultad" type="tipoDificultad"/\>  
-            \<xs:element name="listaMusculos" type="tipoMusculos"/\>  
-        \</xs:sequence\>  
-    \</xs:complexType\>
+    <!-- Entidad Principal -->
+    <xs:complexType name="tipoMaquina">
+        <xs:sequence>
+            <xs:element name="id" type="xs:int"/>
+            <xs:element name="nombre" type="xs:string"/>
+            <xs:element name="marca" type="xs:string"/>
+            <xs:element name="modelo" type="xs:string"/>
+            <xs:element name="categoria" type="xs:string"/>
+            <xs:element name="dimensiones" type="tipoDimensiones"/>
+            <xs:element name="dificultad" type="tipoDificultad"/>
+            <xs:element name="listaMusculos" type="tipoMusculos"/>
+        </xs:sequence>
+    </xs:complexType>
 
-    \<\!-- Tipos Complejos \--\>  
-    \<xs:complexType name="tipoDimensiones"\>  
-        \<xs:sequence\>  
-            \<xs:element name="ancho" type="xs:decimal"/\>  
-            \<xs:element name="largo" type="xs:decimal"/\>  
-            \<xs:element name="alto" type="xs:decimal"/\>  
-        \</xs:sequence\>  
-    \</xs:complexType\>
+    <!-- Tipos Complejos -->
+    <xs:complexType name="tipoDimensiones">
+        <xs:sequence>
+            <xs:element name="ancho" type="xs:decimal"/>
+            <xs:element name="largo" type="xs:decimal"/>
+            <xs:element name="alto" type="xs:decimal"/>
+        </xs:sequence>
+    </xs:complexType>
 
-    \<xs:complexType name="tipoMusculos"\>  
-        \<xs:sequence\>  
-            \<xs:element name="musculo" type="xs:string" maxOccurs="unbounded"/\>  
-        \</xs:sequence\>  
-    \</xs:complexType\>
+    <xs:complexType name="tipoMusculos">
+        <xs:sequence>
+            <xs:element name="musculo" type="xs:string" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
 
-    \<\!-- Tipo Simple con Restricciones \--\>  
-    \<xs:simpleType name="tipoDificultad"\>  
-        \<xs:restriction base="xs:int"\>  
-            \<xs:minInclusive value="1"/\>  
-            \<xs:maxInclusive value="3"/\>  
-        \</xs:restriction\>  
-    \</xs:simpleType\>
+    <!-- Tipo Simple con Restricciones -->
+    <xs:simpleType name="tipoDificultad">
+        <xs:restriction base="xs:int">
+            <xs:minInclusive value="1"/>
+            <xs:maxInclusive value="3"/>
+        </xs:restriction>
+    </xs:simpleType>
 
-\</xs:schema\>
+</xs:schema>
 ```
 # **5\. Documento XML y Datos de Prueba**
 
@@ -329,67 +329,44 @@ Los datos cumplen las siguientes reglas de coherencia:
 ## **5.3. Código Completo del XML**
 ```java
 
-\<?xml version="1.0" encoding="UTF-8" standalone="yes"?\>  
-\<gimnasio\>  
-    \<maquina\>  
-        \<id\>1\</id\>  
-        \<nombre\>Prensa de Piernas Pro\</nombre\>  
-        \<marca\>Matrix\</marca\>  
-        \<modelo\>G7-S70\</modelo\>  
-        \<categoria\>Fuerza\</categoria\>  
-        \<dimensiones\>  
-            \<ancho\>1.20\</ancho\>  
-            \<largo\>2.10\</largo\>  
-            \<alto\>1.50\</alto\>  
-        \</dimensiones\>  
-        \<dificultad\>2\</dificultad\>  
-        \<listaMusculos\>  
-            \<musculo\>Cuádriceps\</musculo\>  
-            \<musculo\>Glúteo\</musculo\>  
-            \<musculo\>Isquiotibiales\</musculo\>  
-        \</listaMusculos\>  
-    \</maquina\>  
-      
-    \<maquina\>  
-        \<id\>2\</id\>  
-        \<nombre\>Cinta de Correr Skillrun\</nombre\>  
-        \<marca\>Technogym\</marca\>  
-        \<modelo\>SK-2024\</modelo\>  
-        \<categoria\>Cardio\</categoria\>  
-        \<dimensiones\>  
-            \<ancho\>0.90\</ancho\>  
-            \<largo\>2.00\</largo\>  
-            \<alto\>1.70\</alto\>  
-        \</dimensiones\>  
-        \<dificultad\>1\</dificultad\>  
-        \<listaMusculos\>  
-            \<musculo\>Corazón\</musculo\>  
-            \<musculo\>Gemelos\</musculo\>  
-            \<musculo\>Cuádriceps\</musculo\>  
-        \</listaMusculos\>  
-    \</maquina\>  
-      
-    \<maquina\>  
-        \<id\>3\</id\>  
-        \<nombre\>Jaula de Potencia MultiRack\</nombre\>  
-        \<marca\>Rogue Fitness\</marca\>  
-        \<modelo\>RML-390F\</modelo\>  
-        \<categoria\>Fuerza\</categoria\>  
-        \<dimensiones\>  
-            \<ancho\>1.40\</ancho\>  
-            \<largo\>1.30\</largo\>  
-            \<alto\>2.20\</alto\>  
-        \</dimensiones\>  
-        \<dificultad\>3\</dificultad\>  
-        \<listaMusculos\>  
-            \<musculo\>Pecho\</musculo\>  
-            \<musculo\>Espalda\</musculo\>  
-            \<musculo\>Hombros\</musculo\>  
-            \<musculo\>Pierna\</musculo\>  
-            \<musculo\>Core\</musculo\>  
-        \</listaMusculos\>  
-    \</maquina\>  
-\</gimnasio\>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gimnasio>
+    <maquina>
+        <id>1</id>
+        <nombre>Prensa de Piernas Pro</nombre>
+        <marca>Matrix</marca>
+        <modelo>G7-S70</modelo>
+        <categoria>Fuerza</categoria>
+        <dimensiones>
+            <ancho>1.20</ancho>
+            <largo>2.10</largo>
+            <alto>1.50</alto>
+        </dimensiones>
+        <dificultad>3</dificultad>
+        <listaMusculos>
+            <musculo>Cuádriceps</musculo>
+            <musculo>Glúteo</musculo>
+        </listaMusculos>
+    </maquina>
+    <maquina>
+        <id>2</id>
+        <nombre>Cinta de Correr Skillrun</nombre>
+        <marca>Technogym</marca>
+        <modelo>SK-2024</modelo>
+        <categoria>Cardio</categoria>
+        <dimensiones>
+            <ancho>0.90</ancho>
+            <largo>2.00</largo>
+            <alto>1.70</alto>
+        </dimensiones>
+        <dificultad>1</dificultad>
+        <listaMusculos>
+            <musculo>Corazón</musculo>
+            <musculo>Gemelos</musculo>
+        </listaMusculos>
+    </maquina>
+</gimnasio>
+
 
 ```
 
@@ -443,20 +420,20 @@ Donde:
 
 * *Anotaciones principales:*
 
-* @XmlRootElement(name \= "gimnasio")  
+* @XmlRootElement(name = "gimnasio")  
   @XmlAccessorType(XmlAccessType.FIELD)
 
 * *Métodos clave:*
 
-* List\<TipoMaquina\> getMaquina()  
-* void setMaquina(List\<TipoMaquina\> value)
+* List<TipoMaquina> getMaquina()  
+* void setMaquina(List<TipoMaquina> value)
 
 * **TipoMaquina.java:** Representa cada máquina individual del inventario. Mapea directamente el tipo complexType definido en el XSD.
 
 * *Anotaciones principales:*
 
 * @XmlAccessorType(XmlAccessType.FIELD)  
-  @XmlType(name \= "tipoMaquina", propOrder \= {...})
+  @XmlType(name = "tipoMaquina", propOrder = {...})
 
 * *Métodos clave:*
 
@@ -484,11 +461,11 @@ Donde:
 * *Anotaciones principales:*
 
 * @XmlAccessorType(XmlAccessType.FIELD)  
-  @XmlType(name \= "tipoMusculos")
+  @XmlType(name = "tipoMusculos")
 
 * *Métodos clave:*
 
-* List\<String\> getMusculo()
+* List<String> getMusculo()
 
 * **ObjectFactory.java:** Clase utilitaria generada por JAXB que contiene métodos factory para crear instancias de los tipos del esquema.
 
@@ -520,39 +497,37 @@ package org.example;
 
 import java.util.List;
 
-public class Main {  
-    public static void main(String\[\] args) {  
-        try {  
-            UtilGimnasio gestor \= new UtilGimnasio();
+public class Main {
+    public static void main(String[] args) {
+        try {
+            UtilGimnasio gestor = new UtilGimnasio();
 
-            // PRUEBA 1: Cargar lo que haya en el XML  
-            gestor.cargarDatos();  
-            System.out.println("--- DATOS CARGADOS DEL XML \---");
+            // Cargar lo que haya en el XML
+            gestor.cargarDatos();
+            System.out.println("--- DATOS CARGADOS DEL XML ---");
 
-            // PRUEBA 2: Búsqueda por dificultad (Método 5\)  
-            System.out.println("\\nMáquinas de dificultad nivel 3:");  
-            gestor.buscarPorDificultad(3).forEach(m \-\>   
-                System.out.println("- " \+ m.getNombre())  
-            );
+            // Probar búsqueda (Método 5)
+            System.out.println("\nMáquinas de dificultad nivel 3:");
+            gestor.buscarPorDificultad(3).forEach(m -> System.out.println("- " + m.getNombre()));
 
-            // PRUEBA 3: Estadística por músculo (Método 6\)  
-            System.out.println("\\nNúmero de máquinas para 'Glúteo': " \+   
-                gestor.contarPorMusculo("Glúteo"));
+            // Probar estadística (Método 6)
+            System.out.println("\nNúmero de máquinas para 'Glúteo': " + gestor.contarPorMusculo("Glúteo"));
 
-            // PRUEBA 4: Modificación de dificultad (Método 8\)  
-            gestor.actualizarDificultad(1, 3);  
-            System.out.println("\\nDificultad de la máquina ID 1 actualizada.");
+            // Probar modificación (Método 8)
+            gestor.actualizarDificultad(1, 3);
+            System.out.println("\nDificultad de la máquina ID 1 actualizada.");
 
-            // PRUEBA 5: Guardar los cambios de vuelta al XML  
-            gestor.guardarDatos();  
-            System.out.println("\\nCambios guardados correctamente en gimnasio.xml");
+            // Guardar los cambios de vuelta al XML
+            gestor.guardarDatos();
+            System.out.println("\nCambios guardados correctamente en gimnasio.xml");
 
-        } catch (Exception e) {  
-            System.err.println("Error: " \+ e.getMessage());  
-            e.printStackTrace();  
-        }  
-    }  
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 }
+
 ```
 ## **7.2. Resultados Esperados**
 
