@@ -375,24 +375,12 @@ Los datos cumplen las siguientes reglas de coherencia:
 ## **6.1. Proceso de Generación de Clases**
 
 JAXB (Java Architecture for XML Binding) actúa como el puente entre el mundo XML y Java. El proceso de generación se realiza mediante la herramienta xjc, que lee el esquema XSD y produce automáticamente clases Java anotadas.
+### Desde el Panel Maven
 
-**Comando de generación:**
-```java
-Paso 3: Generar las Clases Automáticamente
-Opción A: Desde la Terminal de IntelliJ
-
-Abre la terminal en IntelliJ (parte inferior)
-Ejecuta el comando:
-
-bash   mvn clean jaxb2:xjc
-```
-
-### Opción B: Desde el Panel Maven
-
-1. Haz clic en el panel **Maven** (lateral derecho)
-2. Expande tu proyecto
-3. Ve a **Plugins → jaxb2 → jaxb2:xjc**
-4. Haz doble clic para ejecutar
+1. Hacemos clic en el panel **Maven** (lateral derecho)
+2. Expandimos el proyecto
+3. Vamos a **Plugins → jaxb2 → jaxb2:xjc**
+4. Hacemos doble clic para ejecutar
 
 ## Paso 4: Verificar las Clases Generadas
 
